@@ -1,0 +1,15 @@
+*.pyc
+*.log
+__pycache__/
+local_settings.py
+db.sqlite3
+media
+
+### macOS ###
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+*.py[cod]
+
+.vscode
