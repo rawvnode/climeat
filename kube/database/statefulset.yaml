@@ -1,0 +1,57 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: climeatdb
+  labels:
+    app: climeatdb
+    tier: db
+spec:
+  serviceName: "climeatdb"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: climeatdb
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: climeatdb
+        tier: db
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: climeatdb
+        image: postgres:latest
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: climeat-secret
+                key: POSTGRES_DB
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: climeat-secret
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: climeat-secret
+                key: POSTGRES_PASSWORD
+        ports:
+          - containerPort: 5432
+            name: postgresdb
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+          - name: postgresdb
+            mountPath: /var/lib/postgresql/data
+            subPath: postgres
+      volumes:
+      - name: postgresdb
+        emptyDir: {}

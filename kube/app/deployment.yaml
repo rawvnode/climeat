@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: climeat-api
+spec:
+  selector:
+    matchLabels:
+      app: climeat-api
+  template:
+    metadata:
+      labels:
+        app: climeat-api
+    spec:
+      containers:
+      - name: climeat-api
+        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/vre/toc-backend:a460bf73b6aa1300df2203acb5d0e7d41d8eba82
+        # env:
+        # - name: TRACE_AGENT_HOST
+        #   value: "grafana-agent.grafana-agent.svc.cluster.local"
+        # - name: TRACE_AGENT_PORT
+        #   value: "4317"
+        # - name: POSTGRES_HOST
+        #   value: tocdb.toc-backend.svc.cluster.local
+        # - name: POSTGRES_DB
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: toc-secret
+        #       key: POSTGRES_DB
+        # - name: POSTGRES_USER
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: toc-secret
+        #       key: POSTGRES_USER
+        # - name: POSTGRES_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: toc-secret
+        #       key: POSTGRES_PASSWORD
+        # - name: K6_TOKEN
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: toc-secret
+        #       key: K6_TOKEN
+        ports:
+        - name: http-server
+          containerPort: 8009
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi

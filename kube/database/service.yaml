@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: climeatdb
+  labels:
+    app: climeatdb
+    tier: db
+spec:
+  ports:
+    - port: 5432
+      name: tcp
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: climeatdb
+    tier: db
