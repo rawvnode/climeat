@@ -2,7 +2,7 @@ version: "3.7"
 services:
     recipes:
         build:
-            context: ./services/recipes/.
+            context: ./services/climeat/.
             dockerfile: docker/Dockerfile
         ports:
             - "8009:8009"

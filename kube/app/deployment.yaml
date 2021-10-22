@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: climeat-api
+spec:
+  selector:
+    matchLabels:
+      app: climeat-api
+  template:
+    metadata:
+      labels:
+        app: climeat-api
+    spec:
+      containers:
+      - name: climeat-api
+        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/climeat-api:latest
+        env:
+        - name: AGENT_HOST_NAME
+          value: "grafana-agent.grafana-agent.svc.cluster.local"
+        - name: OTEL_PYTHON_LOG_CORRELATION
+          value: "true"
+        - name: POSTGRES_HOST
+          value: climeatdb.climeat.svc.cluster.local
+        - name: POSTGRES_DB
+          value: climeat
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: climeat-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: climeat-secret
+              key: POSTGRES_PASSWORD
+        ports:
+        - name: http-server
+          containerPort: 8009
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
