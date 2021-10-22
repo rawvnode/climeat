@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: climeat-api
-        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/vre/toc-backend:a460bf73b6aa1300df2203acb5d0e7d41d8eba82
+        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/climeat-api:latest
         env:
         - name: AGENT_HOST_NAME
           value: "grafana-agent.grafana-agent.svc.cluster.local"

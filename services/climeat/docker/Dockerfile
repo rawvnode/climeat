@@ -62,18 +62,18 @@ WORKDIR /app
 COPY . .
 
 # DB start
-RUN python ./app/backend_pre_start.py
+#RUN python ./app/backend_pre_start.py
 
 
 # Run migrations
-RUN alembic upgrade head
+#RUN alembic upgrade head
 
 # Create initial data in DB
-RUN python ./app/initial_data.py
+#RUN python ./app/initial_data.py
 
 # RUN poetry show
 
 EXPOSE 8009
-ENTRYPOINT /docker-entrypoint.sh $0 $@
-CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8009", "app.main:app"]
+#ENTRYPOINT /docker-entrypoint.sh $0 $@
+CMD alembic upgrade head && uvicorn --reload --host=0.0.0.0 --port=8009 app.main:app
 # CMD [ "poetry", "run", "python", "app/main.py" ]
