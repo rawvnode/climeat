@@ -3,8 +3,14 @@ from sqlalchemy.orm import sessionmaker
 from google.cloud.sqlcommenter.sqlalchemy.executor import BeforeExecuteFactory
 import sqlalchemy
 import logging
+import os
 
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://climeat:climeat@192.168.1.77:5432/climeat"
+POSTGRES_USER=os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD=os.getenv("POSTGRES_PASSWORD")
+POSTGRES_HOST=os.getenv("POSTGRES_HOST")
+POSTGRES_DB=os.getenv("POSTGRES_DB", "climeat")
+
+SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
 
 log = logging.getLogger(__name__)
 

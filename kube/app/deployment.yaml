@@ -14,33 +14,25 @@ spec:
       containers:
       - name: climeat-api
         image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/vre/toc-backend:a460bf73b6aa1300df2203acb5d0e7d41d8eba82
-        # env:
-        # - name: TRACE_AGENT_HOST
-        #   value: "grafana-agent.grafana-agent.svc.cluster.local"
-        # - name: TRACE_AGENT_PORT
-        #   value: "4317"
-        # - name: POSTGRES_HOST
-        #   value: tocdb.toc-backend.svc.cluster.local
-        # - name: POSTGRES_DB
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: toc-secret
-        #       key: POSTGRES_DB
-        # - name: POSTGRES_USER
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: toc-secret
-        #       key: POSTGRES_USER
-        # - name: POSTGRES_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: toc-secret
-        #       key: POSTGRES_PASSWORD
-        # - name: K6_TOKEN
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: toc-secret
-        #       key: K6_TOKEN
+        env:
+        - name: AGENT_HOST_NAME
+          value: "grafana-agent.grafana-agent.svc.cluster.local"
+        - name: OTEL_PYTHON_LOG_CORRELATION
+          value: "true"
+        - name: POSTGRES_HOST
+          value: climeatdb.climeat.svc.cluster.local
+        - name: POSTGRES_DB
+          value: climeat
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: climeat-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: climeat-secret
+              key: POSTGRES_PASSWORD
         ports:
         - name: http-server
           containerPort: 8009

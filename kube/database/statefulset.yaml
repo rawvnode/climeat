@@ -24,10 +24,7 @@ spec:
         image: postgres:latest
         env:
           - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: climeat-secret
-                key: POSTGRES_DB
+            value: climeat
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
