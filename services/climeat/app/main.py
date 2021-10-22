@@ -1,4 +1,5 @@
 import logging
+from starlette import responses
 import uvicorn
 import os
 
@@ -6,13 +7,16 @@ from fastapi import FastAPI, APIRouter, Query, HTTPException, Request, Depends
 from fastapi.templating import Jinja2Templates
 # from fastapi.logger import logger as log
 
-from typing import Optional, Any
+from typing import Optional, Any, List
 from pathlib import Path
 from sqlalchemy.orm import Session
 
 from app.schemas.recipe import Recipe, RecipeSearchResults, RecipeCreate
 from app import deps
 from app import crud
+from app.schemas.city import City
+from app.crud import crud_city
+from app.crud.crud_count import CountBase
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
@@ -90,6 +94,54 @@ async def root(
         {"request": request, "recipes": recipes},
     )
 
+@api_router.get("/countcities/", status_code=200, response_model=CountBase)
+async def get_count_cities(
+    *
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    print("og count cities")
+    count = crud_city.get_count_cities(db)
+
+    if not count:
+        raise HTTPException(
+            status_code=404, detail=f"Count not available."
+        )
+
+    return count
+
+@api_router.get("/cities/", status_code=200, response_model=List[City])
+async def get_cities(
+    *
+    , skip: int = 0
+    , limit: int = 100
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    print("og cities")
+    cities = crud_city.get_cities(db, skip=skip, limit=limit)
+    print(cities)
+
+    if not cities:
+        raise HTTPException(
+            status_code=404, detail=f"City list not available."
+        )    
+    return cities
+
+@api_router.get("/cities/{name}", status_code=200, response_model=City)
+async def get_city(
+    *
+    , name: str
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    log.info("og city = {name}")
+
+    result = crud_city.get_city(db, name)
+
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"City {name} not found."
+        )
+    return result
+
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
 def fetch_recipe(
     *,
@@ -101,6 +153,7 @@ def fetch_recipe(
     """
     log.info("og recipe id =")
     log.info("og recipe id =")
+
     result = crud.recipe.get(db=db, id=recipe_id)
     if not result:
         raise HTTPException(
