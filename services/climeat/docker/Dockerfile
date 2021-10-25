@@ -41,6 +41,7 @@ RUN poetry install --no-dev  # respects
 # For example using docker-compose to mount local volume under /app
 FROM python-base as development
 ENV FASTAPI_ENV=development
+ENV PYTHONUNBUFFERED=1
 
 # Copying poetry and venv into image
 COPY --from=builder-base $POETRY_HOME $POETRY_HOME
@@ -48,6 +49,7 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 
 # Copying in our entrypoint
 COPY ./docker/docker-entrypoint.sh /docker-entrypoint.sh
+COPY ./docker/start.sh /start.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # venv already has runtime deps installed we get a quicker install
@@ -75,5 +77,6 @@ COPY . .
 
 EXPOSE 8009
 #ENTRYPOINT /docker-entrypoint.sh $0 $@
-CMD alembic upgrade head && uvicorn --reload --host=0.0.0.0 --port=8009 app.main:app
-# CMD [ "poetry", "run", "python", "app/main.py" ]
+CMD alembic upgrade head && uvicorn --log-level info --host=0.0.0.0 --port=8009 app.main:app 
+#CMD [ "poetry", "run", "python", "app/main.py" ]
+#CMD ["/start.sh"]

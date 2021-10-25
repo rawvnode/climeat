@@ -12,6 +12,8 @@ POSTGRES_DB=os.getenv("POSTGRES_DB", "climeat")
 
 SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
 
+print(SQLALCHEMY_DATABASE_URI)
+
 log = logging.getLogger(__name__)
 
 engine = create_engine(

@@ -13,6 +13,6 @@ spec:
             path: "/"
             backend:
               service:
-                name: climeat-api
+                name: climeat-muspell-api
                 port:
                   number: 8009

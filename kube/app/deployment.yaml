@@ -13,10 +13,12 @@ spec:
     spec:
       containers:
       - name: climeat-api
-        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/climeat-api:latest
+        image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/muspell:og7
         env:
         - name: AGENT_HOST_NAME
           value: "grafana-agent.grafana-agent.svc.cluster.local"
+        - name: PYTHON_UNBUFFERED
+          value: "1"
         - name: OTEL_PYTHON_LOG_CORRELATION
           value: "true"
         - name: POSTGRES_HOST

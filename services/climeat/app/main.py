@@ -20,6 +20,8 @@ from app.crud.crud_count import CountBase
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
+AGENT_HOSTNAME = os.getenv("AGENT_HOST_NAME")
+
 
 # logging.config.fileConfig('app/logging.conf', disable_existing_loggers=False)
 # log = logging.getLogger("rich")
@@ -41,7 +43,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 
 # EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='otel-collector:4317')
-EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='192.168.1.77:4317')
+EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint=f'{AGENT_HOSTNAME}:4317')
 TRACE_PROVIDER: TracerProvider = TracerProvider(
     resource = Resource.create(
         {
@@ -75,6 +77,7 @@ def on_startup():
     handler = logging.StreamHandler()
     handler.setFormatter(SpanFormatter('time="%(asctime)s" service=%(name)s level=%(levelname)s %(message)s traceID=%(trace_id)s'))
     log.addHandler(handler)
+    print("end of startup")
 
 @app.on_event('shutdown')
 def on_shutdown():
@@ -132,6 +135,7 @@ async def get_city(
     , name: str
     , db: Session = Depends(deps.get_db)
 ) -> Any:
+    print("Printing city")
     log.info("og city = {name}")
 
     result = crud_city.get_city(db, name)
@@ -212,6 +216,18 @@ async def read_user(user_id: str):
     return {"user_id": user_id}
 
 app.include_router(api_router)
+
+import time
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    print(f"elapsed_time={process_time}")
+    return response
+
 
 if __name__ == "__main__":
     log.info("og test")
