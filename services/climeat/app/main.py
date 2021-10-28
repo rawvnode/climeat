@@ -18,6 +18,9 @@ from app.schemas.city import City
 from app.crud import crud_city
 from app.crud.crud_count import CountBase
 
+from app.schemas.city_population import CityPopulation
+from app.crud import crud_city_population
+
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
@@ -141,6 +144,30 @@ async def get_city(
             status_code=404, detail=f"City {name} not found."
         )
     return result
+
+@api_router.get("/populations/{name}", status_code=200, response_model=CityPopulation)
+async def get_city_population(
+    *
+    , name: str
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    log.info(f"og city = {name}")
+
+    result = crud_city_population.get_population(db, name)
+
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"City {name} not found."
+        )
+    return result
+
+@api_router.get("/population", status_code=200, response_model=CityPopulation)
+async def get_city_population(
+    *
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    print("og")
+    result = crud_city_population.get_pops(db)
 
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
 def fetch_recipe(

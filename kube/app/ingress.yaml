@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: climeat-api-ingress
   labels:
-    name: climeat-api-ingress
+    name: climeat-api-muspell-ingress
 spec:
   rules:
     - host: climeat-api.safemoon.joshcorp.co

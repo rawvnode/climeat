@@ -30,10 +30,10 @@ def count_city_responses(db: Session) -> int:
 def init_db_cities(db: Session, cdp_df: DataFrame) -> None:
     print("og init_db...")
     print(cdp_df.head())
+    city_list = []
+
     for i, row in cdp_df.iterrows():
-        print(row['Year Reported to CDP'])
-        print(type(row['Year Reported to CDP']))
-        city_in = schemas.CityCreate(
+        city_in = City(
                 year_reported=row['Year Reported to CDP']
                 , account_number=row['Account Number']
                 , organization=row['Organization']
@@ -46,15 +46,20 @@ def init_db_cities(db: Session, cdp_df: DataFrame) -> None:
                 , population_year=row['Population Year']
                 , population=row['Population']
         )
-        city = crud.city.create(db, obj_in=city_in)
+        # Single row commit
+        # use schemas.CityCreate
+        # city = crud.city.create(db, obj_in=city_in)
+        # switching to bulk commit
+        city_list.append(city_in)
+    db.bulk_save_objects(city_list)
+    db.commit()
 
 def init_db_city_responses(db: Session, cdp_df: DataFrame) -> None:
     print("og init_db city_responses...")
     print(cdp_df.head())
+    city_response_list = []
     for i, row in cdp_df.iterrows():
-        print(row['Year Reported to CDP'])
-        print(type(row['Year Reported to CDP']))
-        city_response_in = schemas.CityResponseCreate(
+        city_response_in = CityResponse(
                 year_reported=row['Year Reported to CDP']
                 , account_number=row['Account Number']
                 , organization=row['Organization']
@@ -70,4 +75,7 @@ def init_db_city_responses(db: Session, cdp_df: DataFrame) -> None:
                 , row_name=row['Row Name']
                 , response_answer=row['Response Answer']
         )
-        city_response = crud.city_response.create(db, obj_in=city_response_in)
+        city_response_list.append(city_response_in)
+
+    db.bulk_save_objects(city_response_list)
+    db.commit()
