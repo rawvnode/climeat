@@ -1,4 +1,5 @@
 import logging
+from opentelemetry.trace import status
 from starlette import responses
 import uvicorn
 import os
@@ -19,10 +20,14 @@ from app.crud import crud_city
 from app.crud.crud_count import CountBase
 
 from app.schemas.city_population import CityPopulation
+from app.crud import crud_meat_city
 from app.crud import crud_city_population
+from app.schemas.meat_city import MeatPerCapita, MeatOverconsumption
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
+AGENT_HOSTNAME = os.getenv("AGENT_HOST_NAME")
+
 
 # logging.config.fileConfig('app/logging.conf', disable_existing_loggers=False)
 # log = logging.getLogger("rich")
@@ -44,7 +49,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 
 # EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='otel-collector:4317')
-EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='192.168.1.77:4317')
+EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint=f'{AGENT_HOSTNAME}:4317')
 TRACE_PROVIDER: TracerProvider = TracerProvider(
     resource = Resource.create(
         {
@@ -78,6 +83,7 @@ def on_startup():
     handler = logging.StreamHandler()
     handler.setFormatter(SpanFormatter('time="%(asctime)s" service=%(name)s level=%(levelname)s %(message)s traceID=%(trace_id)s'))
     log.addHandler(handler)
+    print("end of startup")
 
 @app.on_event('shutdown')
 def on_shutdown():
@@ -135,6 +141,7 @@ async def get_city(
     , name: str
     , db: Session = Depends(deps.get_db)
 ) -> Any:
+    print("Printing city")
     log.info("og city = {name}")
 
     result = crud_city.get_city(db, name)
@@ -161,14 +168,39 @@ async def get_city_population(
         )
     return result
 
-@api_router.get("/population", status_code=200, response_model=CityPopulation)
+@api_router.get("/meatpercapita", status_code=200, response_model=List[MeatPerCapita])
+async def get_meat_cities(
+    *
+    , db: Session = Depends(deps.get_db),
+) -> Any:
+    result = crud_meat_city.get_meat_cities(db)
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Utopia"
+        )
+    return result
+
+@api_router.get("/meatoverconsumption", status_code=200, response_model=List[MeatOverconsumption])
+async def get_meat_cities(
+    *
+    , db: Session = Depends(deps.get_db),
+) -> Any:
+    result = crud_meat_city.get_meat_overconsumption(db)
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Utopia"
+        )
+    return result
+
+
+"""@api_router.get("/population", status_code=200, response_model=CityPopulation)
 async def get_city_population(
     *
     , db: Session = Depends(deps.get_db)
 ) -> Any:
     print("og")
     result = crud_city_population.get_pops(db)
-
+"""
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
 def fetch_recipe(
     *,
@@ -239,6 +271,19 @@ async def read_user(user_id: str):
     return {"user_id": user_id}
 
 app.include_router(api_router)
+
+import time
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    process_time = process_time * 1000 # convert to ms
+    response.headers["X-Process-Time"] = str(process_time)
+    log.info(f"elapsed_time={process_time} method={request.method} path={request.url.path} status_code={response.status_code}")
+    return response
+
 
 if __name__ == "__main__":
     log.info("og test")
