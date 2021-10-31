@@ -9,7 +9,7 @@ POSTGRES_USER=os.getenv("POSTGRES_USER", "climeat")
 POSTGRES_PASSWORD=os.getenv("POSTGRES_PASSWORD", "climeat")
 POSTGRES_HOST=os.getenv("POSTGRES_HOST", "192.168.1.77")
 POSTGRES_DB=os.getenv("POSTGRES_DB", "climeat")
-POSTGRES_PORT=os.getenv("POSTGRES_PORT", "5432")
+POSTGRES_PORT=os.getenv("POSTGRES_PORT", "6000")
 
 print("og print envs")
 print(f"host = {POSTGRES_HOST}, port = {POSTGRES_PORT}, user = {POSTGRES_USER}")

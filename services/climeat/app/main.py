@@ -50,6 +50,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 # EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='otel-collector:4317')
 EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint=f'{AGENT_HOSTNAME}:4317')
+# EXPORTER: OTLPSpanExporter = OTLPSpanExporter(endpoint='192.168.1.77:4317')
 TRACE_PROVIDER: TracerProvider = TracerProvider(
     resource = Resource.create(
         {
@@ -60,6 +61,7 @@ TRACE_PROVIDER: TracerProvider = TracerProvider(
 
 TRACE_PROVIDER.add_span_processor(BatchSpanProcessor(EXPORTER))
 trace.set_tracer_provider(TRACE_PROVIDER)
+
 
 app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
 api_router = APIRouter()
