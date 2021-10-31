@@ -22,6 +22,8 @@ spec:
           value: "1"
         - name: OTEL_PYTHON_LOG_CORRELATION
           value: "true"
+        - name: WEB_CONCURRENCY
+          value: "4"
         - name: POSTGRES_HOST
           value: climeatdb.climeat.svc.cluster.local
         - name: POSTGRES_DB
