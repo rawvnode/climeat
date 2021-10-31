@@ -26,6 +26,8 @@ spec:
           value: climeatdb.climeat.svc.cluster.local
         - name: POSTGRES_DB
           value: climeat
+        - name: POSTGRES_PORT
+          value: "5432"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
