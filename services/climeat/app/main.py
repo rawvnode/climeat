@@ -226,7 +226,7 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     process_time = process_time * 1000 # convert to ms
     response.headers["X-Process-Time"] = str(process_time)
-    log.info(f"elapsed_time={process_time} method={request.method} path={request.url.path} status_code={response.status_code}")
+    log.info(f"ELAPSED={process_time} method={request.method} path={request.url.path} status_code={response.status_code}")
     return response
 
 
