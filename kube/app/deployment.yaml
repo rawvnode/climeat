@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: climeat-api
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: climeat-api
