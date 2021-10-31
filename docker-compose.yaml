@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-    recipes:
+    climeat:
         build:
             context: ./services/climeat/.
             dockerfile: docker/Dockerfile
@@ -13,27 +13,15 @@ services:
             - norse
         labels:
             - "traefik.enable=true"
-            - "traefik.http.services.recipes.loadbalancer.server.port=8009"
-            - "traefik.http.routers.recipes.rule=Host(`recipes.localhost`)"
-            - "traefik.http.routers.recipes.entrypoints=web"
-            - "app=recipes"
+            - "traefik.http.services.climeat.loadbalancer.server.port=8009"
+            - "traefik.http.routers.climeat.rule=Host(`climeat.localhost`)"
+            - "traefik.http.routers.climeat.entrypoints=web"
+            - "app=climeat"
         logging:
             driver: loki
             options:
                 loki-url: 'http://localhost:3100/loki/api/v1/push'
                 labels: app
-    otel-collector:
-        image: otel/opentelemetry-collector:latest
-        volumes:
-            - ./config/otel-collector.yaml:/config/otel-collector.yaml
-        command:
-            - --config=/config/otel-collector.yaml
-        networks:
-            - norse
-        logging:
-            driver: loki
-            options:
-                loki-url: 'http://localhost:3100/api/v1/push'
 networks:
     norse:
         driver: bridge

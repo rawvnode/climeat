@@ -1,4 +1,5 @@
 import logging
+from opentelemetry.trace import status
 from starlette import responses
 import uvicorn
 import os
@@ -17,6 +18,11 @@ from app import crud
 from app.schemas.city import City
 from app.crud import crud_city
 from app.crud.crud_count import CountBase
+
+from app.schemas.city_population import CityPopulation
+from app.crud import crud_meat_city
+from app.crud import crud_city_population
+from app.schemas.meat_city import MeatPerCapita, MeatOverconsumption
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
@@ -146,6 +152,55 @@ async def get_city(
         )
     return result
 
+@api_router.get("/populations/{name}", status_code=200, response_model=CityPopulation)
+async def get_city_population(
+    *
+    , name: str
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    log.info(f"og city = {name}")
+
+    result = crud_city_population.get_population(db, name)
+
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"City {name} not found."
+        )
+    return result
+
+@api_router.get("/meatpercapita", status_code=200, response_model=List[MeatPerCapita])
+async def get_meat_cities(
+    *
+    , db: Session = Depends(deps.get_db),
+) -> Any:
+    result = crud_meat_city.get_meat_cities(db)
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Utopia"
+        )
+    return result
+
+@api_router.get("/meatoverconsumption", status_code=200, response_model=List[MeatOverconsumption])
+async def get_meat_cities(
+    *
+    , db: Session = Depends(deps.get_db),
+) -> Any:
+    result = crud_meat_city.get_meat_overconsumption(db)
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Utopia"
+        )
+    return result
+
+
+"""@api_router.get("/population", status_code=200, response_model=CityPopulation)
+async def get_city_population(
+    *
+    , db: Session = Depends(deps.get_db)
+) -> Any:
+    print("og")
+    result = crud_city_population.get_pops(db)
+"""
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
 def fetch_recipe(
     *,

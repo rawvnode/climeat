@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 def init() -> None:
     db = SessionLocal()
+
+    # load city data
     count = count_cities(db)
     print(type(count))
     print(count)
@@ -25,6 +27,7 @@ def init() -> None:
         print(type(cdp_df))
         init_db_cities(db, cdp_df)
 
+    # load city response data
     count = count_city_responses(db)
     print(type(count))
     print(count)
@@ -32,6 +35,7 @@ def init() -> None:
         city_response_df = load_data_csv_city_responses()
         print(city_response_df.head())
         init_db_city_responses(db, city_response_df)
+
 
 def load_data_csv_city_responses():
     dfs = {}
