@@ -13,8 +13,10 @@ spec:
     spec:
       containers:
         - name: climeat-api
-          image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/muspell:og10
+          image: 593393184947.dkr.ecr.us-east-1.amazonaws.com/muspell:og13
           env:
+            - name: force_configure
+              value: "1"
             - name: AGENT_HOST_NAME
               value: "grafana-agent.grafana-agent.svc.cluster.local"
             - name: PYTHON_UNBUFFERED
