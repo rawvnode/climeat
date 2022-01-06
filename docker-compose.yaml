@@ -28,8 +28,12 @@ services:
         ports:
             - "8009:8009"
         environment:
-            - AGENT_HOSTNAME=tempo
+            - AGENT_HOST_NAME=tempo
             - OTEL_PYTHON_LOG_CORRELATION=true
+            - POSTGRES_HOST=host.docker.internal
+            - POSTGRES_PORT=5432
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
         networks:
             - norse
         labels:
