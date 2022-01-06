@@ -49,6 +49,10 @@ spec:
           - name: postgresdb
             mountPath: /var/lib/postgresql/data
             subPath: postgres
+          - name: dshm
+            mountPath: /dev/shm
       volumes:
       - name: postgresdb
+        emptyDir: {}
+      - name: dshm
         emptyDir: {}

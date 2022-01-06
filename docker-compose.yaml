@@ -1,5 +1,26 @@
 version: "3.7"
 services:
+    traefik:
+        image: "traefik:v2.4"
+        command:
+        #- "--log.level=DEBUG"
+        - "--api.insecure=true"
+        - "--providers.docker=true"
+        - "--providers.docker.exposedbydefault=false"
+        - "--entrypoints.web.address=:80"
+        ports:
+        - "80:80"
+        - "8080:8080"
+        volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        networks:
+        - norse
+        logging:
+            driver: loki
+            options:
+                loki-url: 'http://localhost:3100/loki/api/v1/push'
+                labels: proxy
+
     climeat:
         build:
             context: ./services/climeat/.
@@ -7,7 +28,7 @@ services:
         ports:
             - "8009:8009"
         environment:
-            - AGENT_HOSTNAME=otel-collector
+            - AGENT_HOSTNAME=tempo
             - OTEL_PYTHON_LOG_CORRELATION=true
         networks:
             - norse
@@ -22,6 +43,64 @@ services:
             options:
                 loki-url: 'http://localhost:3100/loki/api/v1/push'
                 labels: app
+
+    tempo:
+        image: grafana/tempo:latest
+        command: ["-config.file=/etc/tempo.yaml"]
+        ports:
+        - "3101:3100"
+        - "55680:55680"
+        volumes:
+        - ${PWD}/config/tempo/tempo.yaml:/etc/tempo.yaml
+        networks:
+        - norse
+        logging:
+            driver: loki
+            options:
+                loki-url: 'http://localhost:3100/loki/api/v1/push'
+                labels: tracing
+
+    loki:
+        image: grafana/loki:latest
+        command: ["-config.file=/etc/loki/local-config.yaml"]
+        ports:
+        - "3100:3100"
+        environment:
+        - JAEGER_AGENT_HOST=tempo
+        - JAEGER_ENDPOINT=http://tempo:14268/api/traces
+        - JAEGER_SAMPLER_TYPE=const
+        - JAEGER_SAMPLER_PARAM=1
+        networks:
+        - norse
+        logging:
+            driver: loki
+            options:
+                loki-url: 'http://localhost:3100/loki/api/v1/push'
+                labels: logging
+
+    grafana:
+        image: grafana/grafana:7.5.4
+        volumes:
+        - ./config/datasources:/etc/grafana/provisioning/datasources
+        environment:
+        - GF_AUTH_ANONYMOUS_ENABLED=true
+        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+        - GF_AUTH_DISABLE_LOGIN_FORM=true
+        ports:
+        - "3000:3000"
+        networks:
+        - norse
+        labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+        - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+        - "traefik.http.routers.grafana.entrypoints=web"
+        logging:
+            driver: loki
+            options:
+                loki-url: 'http://localhost:3100/loki/api/v1/push'
+                labels: grafana
+
 networks:
     norse:
         driver: bridge
